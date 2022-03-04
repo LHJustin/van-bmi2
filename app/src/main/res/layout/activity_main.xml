@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
-        android:text="Weight"
+        android:text="Weight(kg)"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Height"
+        android:text="Height(m)"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintStart_toStartOf="@+id/ed_weight"
         app:layout_constraintTop_toBottomOf="@+id/ed_weight" />
@@ -45,6 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
+        android:onClick="bmi"
         android:text="CALCULATE BMI"
         app:layout_constraintStart_toStartOf="@+id/ed_height"
         app:layout_constraintTop_toBottomOf="@+id/ed_height" />
