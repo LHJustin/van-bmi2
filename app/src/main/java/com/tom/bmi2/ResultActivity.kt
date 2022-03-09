@@ -17,14 +17,14 @@ class ResultActivity : AppCompatActivity() {
         binding.bDone.setOnClickListener{
             val name = binding.edName.text.toString()
             val data = Intent()
-            data.putExtra("Name",name)
+            data.putExtra(Extras.NAME,name)
             setResult(RESULT_OK, data)
             finish()
         }
     }
 
     private fun showBmi() {
-        val bmi = intent.getFloatExtra("BMI_EXTRA", 0f)
+        val bmi = intent.getFloatExtra(Extras.BMI,0f)
         Log.d(TAG, "BMI:$bmi")
         binding.bmiDisplay.text = bmi.toString()
     }
