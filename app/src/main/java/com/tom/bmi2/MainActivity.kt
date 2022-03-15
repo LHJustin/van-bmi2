@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
 import com.tom.bmi2.databinding.ActivityMainBinding
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     val REQUEST_DISPLAY_BMI = 16
@@ -13,7 +15,8 @@ class MainActivity : AppCompatActivity() {
     private val TAG = MainActivity::class.java.simpleName
     lateinit var viewModel: BmiViewModel
     val fragments = mutableListOf<Fragment>()
-
+    //database定義屬性
+    lateinit var database : TranDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -41,6 +44,13 @@ class MainActivity : AppCompatActivity() {
                 else -> true
             }
         }
+        //匯入database
+        val t1 = Transaction(1,"hank", "20220315",3000,1)
+        database = Room.databaseBuilder(this, TranDatabase::class.java, "trans.db").build()
+        thread {
+            database.transactionDao().insert(t1)
+        }
+
 
     }
     private fun initFragments() {

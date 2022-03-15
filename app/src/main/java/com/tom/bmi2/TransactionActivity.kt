@@ -71,6 +71,7 @@ class TransactionActivity : AppCompatActivity() {
                 val type = binding.tranType
             }
 }
+/*
 data class Transaction(val account: String, val date: String, val amount: Int, val type: Int){
 
-}
+}*/
