@@ -13,21 +13,8 @@ class ResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //執行接收showBmi的動作
-        showBmi()
-        binding.bDone.setOnClickListener{
-            val name = binding.edName.text.toString()
-            val data = Intent()
-            data.putExtra(Extras.NAME,name)
-            setResult(RESULT_OK, data)
-            finish()
-        }
+
     }
-    //從MainActivity接收bmi的數值
-    private fun showBmi() {
-        val bmi = intent.getFloatExtra(Extras.BMI,0f)
-        val d = Log.d(TAG, "BMI:$bmi")
-        binding.bmiDisplay.text = bmi.toString()
-    }
+
 
 }

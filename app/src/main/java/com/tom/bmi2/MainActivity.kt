@@ -1,73 +1,70 @@
 package com.tom.bmi2
 
-import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContract
-import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.tom.bmi2.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     val REQUEST_DISPLAY_BMI = 16
-    private val TAG = MainActivity::class.java.simpleName
     lateinit var binding: ActivityMainBinding
+    private val TAG = MainActivity::class.java.simpleName
     lateinit var viewModel: BmiViewModel
-    //在合約裡使用從ResultActivity接收到的字串
-    var launcher = registerForActivityResult(NameContract()){ name ->
-        Toast.makeText(this, name, Toast.LENGTH_LONG).show()
-        binding.tvBmi.text = name
-    }
+    val fragments = mutableListOf<Fragment>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Log.d(TAG, "onCreate: ")
         viewModel = ViewModelProvider(this).get(BmiViewModel::class.java)
-        viewModel.bmi.observe(this) { bmi ->
-            binding.tvBmi.setText(bmi.toString())
-        }
-        binding.bHelp.setOnClickListener{
-            Log.d("MainActivity","Need help!")
-        }
-
-    }
-
-    fun bmi(view:View) {
-//        println("hahaha")
-
-        var  weight = binding.edWeight.text.toString().toFloat()
-        var  height = binding.edHeight.text.toString().toFloat()
-        viewModel.set(weight, height)
-    }
-
-    //設一個NameContract的Class等等在上面丟進合約
-    class NameContract : ActivityResultContract<Float,String>(){
-        //預備傳送值給ResultActivity
-        override fun createIntent(context: Context, input: Float?): Intent {
-            val intent = Intent(context,ResultActivity::class.java).putExtra(Extras.BMI,input)
-            return intent
-        }
-        //預備接收ResultActivity的字串，如果RESULT_OK判斷沒有內容會傳No name
-        override fun parseResult(resultCode: Int, intent: Intent?): String {
-            if (resultCode == RESULT_OK){
-                val name = intent!!.getStringExtra(Extras.NAME)
-                return name!!
-            }else{
-                return "No name"
+        initFragments()
+        binding.bottomNavBar.setOnItemSelectedListener { item->
+            when(item.itemId){
+                R.id.action_home->{
+                    supportFragmentManager.beginTransaction().run {
+                        replace(R.id.my_container, fragments[0]).commit()
+                    }
+                    true
+                }
+                R.id.action_camera->{
+                    true
+                }
+                R.id.action_bmi->{
+                    supportFragmentManager.beginTransaction().run {
+                        replace(R.id.my_container, ResultFragment()).commit()
+                    }
+                    true
+                }
+                else -> true
             }
         }
 
     }
+    private fun initFragments() {
+        fragments.add(0,BlankFragment())
+        /*val bmifragment = BlankFragment()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.add(R.id.my_container, bmifragment).commit()*/
+
+        //Kotlin way
+        val t = supportFragmentManager.beginTransaction().run {
+            add(R.id.my_container, fragments[0])
+            commit()
+        }
+    }
+
+//    fun bmi() {
+//        println("hahaha")
+//
+//    }
 
 
 
-    override fun onStart() {
+
+    /*override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart: ")
     }
@@ -95,6 +92,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy: ")
-    }
+    }*/
 
 }
