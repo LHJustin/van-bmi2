@@ -10,20 +10,28 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProvider
 import com.tom.bmi2.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     val REQUEST_DISPLAY_BMI = 16
     private val TAG = MainActivity::class.java.simpleName
     lateinit var binding: ActivityMainBinding
+    lateinit var viewModel: BmiViewModel
+    //在合約裡使用從ResultActivity接收到的字串
     var launcher = registerForActivityResult(NameContract()){ name ->
         Toast.makeText(this, name, Toast.LENGTH_LONG).show()
+        binding.tvBmi.text = name
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Log.d(TAG, "onCreate: ")
+        viewModel = ViewModelProvider(this).get(BmiViewModel::class.java)
+        viewModel.bmi.observe(this) { bmi ->
+            binding.tvBmi.setText(bmi.toString())
+        }
         binding.bHelp.setOnClickListener{
             Log.d("MainActivity","Need help!")
         }
@@ -35,39 +43,29 @@ class MainActivity : AppCompatActivity() {
 
         var  weight = binding.edWeight.text.toString().toFloat()
         var  height = binding.edHeight.text.toString().toFloat()
-        var  bmi: Float = weight/(height*height)
-//        println("BMI = ${weight/(height*height)}")
-        Log.d("MainActivity",bmi.toString())
-        Toast.makeText(this,"Your BMI is ${bmi.toString()}",Toast.LENGTH_LONG).show()
-        /*val builder = AlertDialog.Builder(this)
-        builder.setTitle("Hello")
-        builder.setMessage("Your BMI is $bmi")
-        builder.setPositiveButton("OK",null)
-        val dialog = builder.create()
-        dialog.show()*/
-        AlertDialog.Builder(this)
-            .setTitle("Messange")
-            .setMessage("Your BMI is $bmi")
-            .setPositiveButton("Ok", ){ dialog,which ->
-                binding.edWeight.setText("")
-                binding.edHeight.setText("")
-            }
-            .show()
-        binding.tvBmi.text = "Your BMI is $bmi"
-//        val intent = Intent(this,ResultActivity::class.java)
-//        intent.putExtra("BMI",bmi)
-//        startActivity(intent)
-//        startActivityForResult(intent,REQUEST_DISPLAY_BMI)
-        launcher.launch(bmi)
+        viewModel.set(weight, height)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "onActivityResult")
-        if (requestCode == REQUEST_DISPLAY_BMI && resultCode == RESULT_OK){
-            Log.d(TAG, "back from ResultActivity")
+    //設一個NameContract的Class等等在上面丟進合約
+    class NameContract : ActivityResultContract<Float,String>(){
+        //預備傳送值給ResultActivity
+        override fun createIntent(context: Context, input: Float?): Intent {
+            val intent = Intent(context,ResultActivity::class.java).putExtra(Extras.BMI,input)
+            return intent
         }
+        //預備接收ResultActivity的字串，如果RESULT_OK判斷沒有內容會傳No name
+        override fun parseResult(resultCode: Int, intent: Intent?): String {
+            if (resultCode == RESULT_OK){
+                val name = intent!!.getStringExtra(Extras.NAME)
+                return name!!
+            }else{
+                return "No name"
+            }
+        }
+
     }
+
+
 
     override fun onStart() {
         super.onStart()
@@ -99,20 +97,4 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy: ")
     }
 
-    class NameContract : ActivityResultContract<Float,String>(){
-        override fun createIntent(context: Context, input: Float?): Intent {
-            val intent = Intent(context,ResultActivity::class.java).putExtra(Extras.BMI,input)
-            return intent
-        }
-
-        override fun parseResult(resultCode: Int, intent: Intent?): String {
-            if (resultCode == RESULT_OK){
-                val name = intent!!.getStringExtra(Extras.NAME)
-                return name!!
-            }else{
-                return "No name"
-            }
-        }
-    }
-    
 }
